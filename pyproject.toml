@@ -1,0 +1,22 @@
+[tool.poetry]
+name = "fastapi store api"
+version = "0.0.1"
+description = ""
+authors = ["Rafael Ferreira Machado <rafaelf.machado2004@gmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.12"
+fastapi = "^0.111.0"
+uvicorn = "^0.30.1"
+pydantic = "^2.8.2"
+pydantic-settings = "^2.3.4"
+motor = "^3.5.0"
+pytest = "^8.2.2"
+pytest-asyncio = "^0.23.7"
+pre-commit = "^3.7.1"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
