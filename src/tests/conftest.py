@@ -2,7 +2,7 @@ import asyncio
 from uuid import UUID
 import pytest
 from src.store.db.mongo import db_client
-from src.store.schemas.product import ProductIn
+from src.store.schemas.product import ProductIn, ProductUpdate
 from src.tests.factories import product_data
 
 
@@ -37,3 +37,8 @@ def product_id() -> UUID:
 @pytest.fixture
 def product_in(product_id):
     return ProductIn(**product_data(), id=product_id)
+
+
+@pytest.fixture
+def product_up(product_id):
+    return ProductUpdate(**product_data(), id=product_id)

@@ -1,3 +1,4 @@
+from typing import Optional
 from pydantic import BaseModel, Field
 from src.store.schemas.base import BaseSchemaMixin
 
@@ -14,4 +15,14 @@ class ProductIn(ProductBase, BaseSchemaMixin):
 
 
 class ProductOut(ProductIn):
+    ...
+
+
+class ProductUpdate(ProductBase):
+    quantity: Optional[int] = Field(None, description="Product quantity")
+    price: Optional[float] = Field(None, description="Product price")
+    status: Optional[bool] = Field(None, description="Product status")
+
+
+class ProductUpdateOut(ProductUpdate):
     ...
