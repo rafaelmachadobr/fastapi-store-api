@@ -1,0 +1,21 @@
+_format_version: "3.0"
+services:
+  - name: fastapi
+    host: host.docker.internal
+    port: 8888
+    connect_timeout: 60000
+    read_timeout: 60000
+    retries: 5
+    routes:
+      - name: fastapi-route
+        paths:
+          - /
+        strip_path: true
+        https_redirect_status_code: 426
+        preserve_host: false
+        protocols:
+          - http
+        regex_priority: 0
+        request_buffering: true
+        response_buffering: true
+        path_handling: v0
