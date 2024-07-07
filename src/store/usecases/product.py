@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import List
+from typing import List, Optional
 from uuid import UUID
 from motor.motor_asyncio import AsyncIOMotorClient, AsyncIOMotorDatabase
 import pymongo
@@ -23,10 +23,11 @@ class ProductUsecase:
 
     async def create(self, body: ProductIn) -> ProductOut:
         product_model = ProductModel(**body.model_dump())
-        await self.collection.insert_one(product_model.model_dump())
 
-        if not product_model:
-            raise InsertionException(message="Error occurred during insertion")
+        insert_result = await self.collection.insert_one(product_model.model_dump())
+
+        if not insert_result.acknowledged:
+            raise InsertionException(message="Error inserting product")
 
         return ProductOut(**product_model.model_dump())
 
@@ -38,8 +39,23 @@ class ProductUsecase:
 
         return ProductOut(**result)
 
-    async def query(self) -> List[ProductOut]:
-        return [ProductOut(**item) async for item in self.collection.find()]
+    async def query(
+        self, min_price: Optional[float] = None, max_price: Optional[float] = None
+    ) -> List[ProductOut]:
+        query_filter = {}
+
+        if min_price:
+            query_filter["price"] = {"$gte": min_price}
+
+        if max_price:
+            query_filter["price"] = {"$lte": max_price}
+
+        if min_price and max_price:
+            query_filter["price"] = {"$gte": min_price, "$lte": max_price}
+
+        result_cursor = self.collection.find(query_filter)
+
+        return [ProductOut(**item) async for item in result_cursor]
 
     async def update(self, id: UUID, body: ProductUpdate) -> ProductUpdateOut:
         update_data = body.model_dump(exclude_none=True)
@@ -58,6 +74,7 @@ class ProductUsecase:
 
     async def delete(self, id: UUID) -> bool:
         product = await self.collection.find_one({"id": id})
+
         if not product:
             raise NotFoundException(message=f"Product not found with filter: {id}")
 

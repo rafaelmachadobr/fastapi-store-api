@@ -3,7 +3,6 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 class Config(BaseSettings):
     PROJECT_NAME: str = "Store API"
-    ROOT_PATH: str = "/src/store"
 
     DATABASE_URL: str
 
