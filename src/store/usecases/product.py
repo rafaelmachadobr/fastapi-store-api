@@ -4,6 +4,7 @@ from motor.motor_asyncio import AsyncIOMotorClient, AsyncIOMotorDatabase
 import pymongo
 from src.store.core.exceptions import NotFoundException
 from src.store.db.mongo import db_client
+from src.store.models.product import ProductModel
 from src.store.schemas.product import (
     ProductIn,
     ProductOut,
@@ -13,22 +14,22 @@ from src.store.schemas.product import (
 
 
 class ProductUsecase:
-    def __init__(self):
+    def __init__(self) -> None:
         self.client: AsyncIOMotorClient = db_client.get()
         self.database: AsyncIOMotorDatabase = self.client.get_database()
         self.collection = self.database.get_collection("products")
 
     async def create(self, body: ProductIn) -> ProductOut:
-        product = ProductOut(**body.model_dump())
-        await self.collection.insert_one(product.model_dump())
+        product_model = ProductModel(**body.model_dump())
+        await self.collection.insert_one(product_model.model_dump())
 
-        return product
+        return ProductOut(**product_model.model_dump())
 
     async def get(self, id: UUID) -> ProductOut:
         result = await self.collection.find_one({"id": id})
 
         if not result:
-            raise NotFoundException(f"Product not found with filter: {id}")
+            raise NotFoundException(message=f"Product not found with filter: {id}")
 
         return ProductOut(**result)
 
@@ -43,6 +44,15 @@ class ProductUsecase:
         )
 
         return ProductUpdateOut(**result)
+
+    async def delete(self, id: UUID) -> bool:
+        product = await self.collection.find_one({"id": id})
+        if not product:
+            raise NotFoundException(message=f"Product not found with filter: {id}")
+
+        result = await self.collection.delete_one({"id": id})
+
+        return True if result.deleted_count > 0 else False
 
 
 product_usecase = ProductUsecase()
