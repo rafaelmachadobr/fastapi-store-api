@@ -2,7 +2,7 @@ from typing import List
 from uuid import UUID
 from motor.motor_asyncio import AsyncIOMotorClient, AsyncIOMotorDatabase
 import pymongo
-from src.store.core.exceptions import NotFoundException
+from src.store.core.exceptions import InsertionException, NotFoundException
 from src.store.db.mongo import db_client
 from src.store.models.product import ProductModel
 from src.store.schemas.product import (
@@ -22,6 +22,9 @@ class ProductUsecase:
     async def create(self, body: ProductIn) -> ProductOut:
         product_model = ProductModel(**body.model_dump())
         await self.collection.insert_one(product_model.model_dump())
+
+        if not product_model:
+            raise InsertionException(message="Error occurred during insertion")
 
         return ProductOut(**product_model.model_dump())
 
