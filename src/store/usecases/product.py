@@ -52,7 +52,7 @@ class ProductUsecase:
 
         result = await self.collection.delete_one({"id": id})
 
-        return True if result.deleted_count > 0 else False
+        return result.deleted_count > 0
 
 
 product_usecase = ProductUsecase()
